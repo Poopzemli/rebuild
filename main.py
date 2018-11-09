@@ -4,6 +4,9 @@ from PyQt5 import QtWidgets, QtGui
 import design
 
 class ExapleApp (QtWidgets.QMainWindow, design.Ui_MainWindow):
+
+    DFile = 'table.cvs'
+
     def __init__(self):
         super().__init__()
         self.setupUi(self)
@@ -16,6 +19,11 @@ class ExapleApp (QtWidgets.QMainWindow, design.Ui_MainWindow):
         self.pushButton.clicked.connect(self.AddNew)
         self.label.setPixmap(QtGui.QPixmap('NewAdd.png'))
         self.label.setScaledContents(True)
+
+        self.ReadDF(self.DFile)
+
+    def ReadDf(self, file):
+        pass
 
     def AddNew(self):
         nf = QtWidgets.QFrame()
