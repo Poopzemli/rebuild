@@ -3,6 +3,7 @@ from PyQt5 import QtWidgets, QtGui
 import pandas as pd
 
 import design
+from InfoMessage import Ui_InfoDialog
 
 class ExapleApp (QtWidgets.QMainWindow, design.Ui_MainWindow):
 
@@ -51,9 +52,10 @@ class ExapleApp (QtWidgets.QMainWindow, design.Ui_MainWindow):
         nb = QtWidgets.QPushButton(nf)
         nb.setText("Информация")
         nb.move(35, 190)
-
-        pic, addr, plosh, kom, tip, price, index, ok = self.GetAddInformation()
-
+        try:
+            pic, addr, plosh, kom, tip, price, index, ok = self.GetAddInformation()
+        except TypeError:
+            ok = False
         if ok:
             nl = QtWidgets.QLabel(nf)
             nl.move(4, 5)
@@ -65,16 +67,19 @@ class ExapleApp (QtWidgets.QMainWindow, design.Ui_MainWindow):
             if self.NewPositionH == 4:
                 self.NewPositionV += 1
                 self.NewPositionH = 0
-        df = pd.read_csv(self.DBase + self.DFile, sep=',', header=0, encoding='utf-8', index_col=False)
-        new_line = pd.DataFrame({'ID':len(df.index)+1, 'Адрес':addr, 'Площадь':plosh, 'Комнаты':kom, 'Тип сделки':tip, 'Цена':price, 'Индекс':index, 'pic':pic}, index=range(1))
-        print(new_line)
-        nb.clicked.connect(lambda : self.DFrameSendInfo(df.ID))
-        df = df.append(new_line)
-        print(df)
-        df.to_csv(self.DBase + self.DFile, sep=',', encoding='utf-8', line_terminator='\n', index=False)
+            df = pd.read_csv(self.DBase + self.DFile, sep=',', header=0, encoding='utf-8', index_col=False)
+            new_line = pd.DataFrame({'ID':len(df.index)+1, 'Адрес':addr, 'Площадь':plosh, 'Комнаты':kom, 'Тип сделки':tip, 'Цена':price, 'Индекс':index, 'pic':pic}, index=range(1))
+            print(new_line)
+            nb.clicked.connect(lambda : self.DFrameSendInfo(df.ID))
+            df = df.append(new_line)
+            print(df)
+            df.to_csv(self.DBase + self.DFile, sep=',', encoding='utf-8', line_terminator='\n', index=False)
 
     def DFrameSendInfo(self, ID):
-        print('CLICKED!')
+        self.window = QtWidgets.QMainWindow()
+        ui = Ui_InfoDialog()
+        ui.setupUi(self.window)
+        self.window.show()
     def GetAddInformation(self):
         pic, ok = QtWidgets.QInputDialog().getText(self, 'InputText', 'Адрес изображения:?')
         if ok:
