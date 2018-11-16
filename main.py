@@ -3,12 +3,13 @@ from PyQt5 import QtWidgets, QtGui
 import pandas as pd
 
 import design
-from InfoMessage import Ui_InfoDialog
+from InfoMessage import Ui_InfoMessage
 
 class ExapleApp (QtWidgets.QMainWindow, design.Ui_MainWindow):
 
     DBase = 'DataBase/'
     DFile = 'House.csv'
+    tileList = []
 
     def __init__(self):
         super().__init__()
@@ -27,29 +28,56 @@ class ExapleApp (QtWidgets.QMainWindow, design.Ui_MainWindow):
 
     def ReadDF(self, file):
         df = pd.read_csv(self.DBase + file, header=0, sep=',')
+        self.n = 0
         for item in df.pic:
-            nf = QtWidgets.QFrame()
-            nf.setStyleSheet(".QLabel { max-height: 170; max-width: 170; min-width: 170; min-height: 170; border: 1px solid white; }")
-            nb = QtWidgets.QPushButton(nf)
-            nb.clicked.connect(lambda: self.DFrameSendInfo(df.ID))
+            self.nf = QtWidgets.QFrame()
+            #nf.setObjectName("UFrame_" + str(n))
+            self.n += 1
+            self.nf.setStyleSheet(".QLabel { max-height: 170; max-width: 170; min-width: 170; min-height: 170; border: 1px solid white; }" + "QPushButton#CloseButton" + str(self.n) + " {background-color: red; max-width: 30px;}")
+            self.nf.setObjectName("NF" + str(self.n))
+            cd = QtWidgets.QPushButton(self.nf)
+            cd.setText('X')
+            cd.setObjectName("CloseButton" + str(self.n))
+            cd.move(130, 191)
+            cd.clicked.connect(lambda : self.delete())
+            nb = QtWidgets.QPushButton(self.nf)
+            nb.setObjectName(str(self.n))
+            k = df[df.pic == item]['Адрес']
+            print(k)
+            nb.clicked.connect(self.DFrameSendInfo)
             nb.setText("Информация")
-            nb.move(35, 190)
+            nb.move(10, 190)
 
-            nl = QtWidgets.QLabel(nf)
+            nl = QtWidgets.QLabel(self.nf)
             nl.move(4, 5)
             nl.setPixmap(QtGui.QPixmap(item))
             nl.setScaledContents(True)
 
-            self.gridLayout.addWidget(nf, self.NewPositionV, self.NewPositionH)
+            self.tileList.append(self.nf)
+
+            self.gridLayout.addWidget(self.nf, self.NewPositionV, self.NewPositionH)
             self.NewPositionH += 1
             if self.NewPositionH == 4:
                 self.NewPositionV += 1
                 self.NewPositionH = 0
 
+    def delete(self):
+        df = pd.read_csv(self.DBase + self.DFile, header=0, sep=',')
+        sender = self.sender()
+        k = int(sender.objectName()[len(sender.objectName())-1])
+        print(k)
+        self.tileList[k-1].deleteLater()
+        df.drop([k], axis=0, inplace=True)
+        df.reset_index(drop=True)
+        df.to_csv(self.DBase + self.DFile, sep=',', encoding='utf-8', line_terminator='\n', index=False)
+
     def AddNew(self):
         nf = QtWidgets.QFrame()
         nf.setStyleSheet(".QLabel { max-height: 170; max-width: 170; min-width: 170; min-height: 170; border: 1px solid white; }")
         nb = QtWidgets.QPushButton(nf)
+        self.n += 1
+        nb.setObjectName(str(self.n))
+        nb.clicked.connect(self.DFrameSendInfo)
         nb.setText("Информация")
         nb.move(35, 190)
         try:
@@ -69,16 +97,35 @@ class ExapleApp (QtWidgets.QMainWindow, design.Ui_MainWindow):
                 self.NewPositionH = 0
             df = pd.read_csv(self.DBase + self.DFile, sep=',', header=0, encoding='utf-8', index_col=False)
             new_line = pd.DataFrame({'ID':len(df.index)+1, 'Адрес':addr, 'Площадь':plosh, 'Комнаты':kom, 'Тип сделки':tip, 'Цена':price, 'Индекс':index, 'pic':pic}, index=range(1))
-            print(new_line)
-            nb.clicked.connect(lambda : self.DFrameSendInfo(df.ID))
+            IDS = len(df.index) + 1
+            nb.clicked.connect(lambda : self.DFrameSendInfo(IDS))
             df = df.append(new_line)
             print(df)
             df.to_csv(self.DBase + self.DFile, sep=',', encoding='utf-8', line_terminator='\n', index=False)
 
-    def DFrameSendInfo(self, ID):
+    def DFrameSendInfo(self):
+        sender = self.sender()
+        df = pd.read_csv(self.DBase + self.DFile, sep=',', header=0, encoding='utf-8', index_col=False)
         self.window = QtWidgets.QMainWindow()
-        ui = Ui_InfoDialog()
+        ui = Ui_InfoMessage()
         ui.setupUi(self.window)
+        #print(sender.objectName())
+        ID = int(sender.objectName())
+        ui.label_13.setText(str(ID))
+        ui.label_14.setText(df[df.ID == ID]['Адрес'][ID-1])
+        #print(df[df.ID == ID]['Адрес'][ID-1])
+        ui.label_15.setText(df[df.ID == ID]['Площадь'][ID-1])
+        ui.label_16.setText(str(df[df.ID == ID]['Комнаты'][ID-1]))
+        ui.label_17.setText(df[df.ID == ID]['Тип сделки'][ID-1])
+        ui.label_18.setText(str(df[df.ID == ID]['Цена'][ID-1]) + " руб")
+        ui.label_19.setText(str(df[df.ID == ID]['Индекс'][ID-1]))
+        try:
+            df = pd.read_csv(self.DBase + 'Prod.csv', sep=',', header=0, encoding='utf-8', index_col=False)
+            ui.label_20.setText(str(df[df.ID == ID]['Адрес'][ID-1]))
+            ui.label_21.setText(str(df[df.ID == ID]['Фамилия'][ID-1]) + ' ' + str(df[df.ID == ID]['Имя'][ID-1]) + ' ' + str(df[df.ID == ID]['Отчество'][ID-1]))
+            ui.label_22.setText(str(df[df.ID == ID]['Номер'][ID-1]))
+        except IndexError:
+            pass
         self.window.show()
     def GetAddInformation(self):
         pic, ok = QtWidgets.QInputDialog().getText(self, 'InputText', 'Адрес изображения:?')
