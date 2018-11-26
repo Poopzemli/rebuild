@@ -2,7 +2,7 @@ import sys
 from PyQt5 import QtWidgets, QtGui, QtCore
 import pandas as pd
 from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import QAction, qApp
+from PyQt5.QtWidgets import QAction, qApp, QStyle
 
 import design
 from InfoMessage import Ui_InfoMessage
@@ -25,7 +25,6 @@ class ExapleApp (QtWidgets.QMainWindow, design.Ui_MainWindow):
         self.pushButton.clicked.connect(self.AddNew)
         self.label.setPixmap(QtGui.QPixmap('NewAdd.png'))
         self.label.setScaledContents(True)
-
         self.ReadDF(self.DFile)
         self.CreateMenuFunc()
 
@@ -127,10 +126,17 @@ class ExapleApp (QtWidgets.QMainWindow, design.Ui_MainWindow):
             nb = QtWidgets.QPushButton(self.nf)
             nb.setObjectName(str(self.n))
             k = df[df.pic == item]['Адрес']
-            print(k)
+            #print(k)
             nb.clicked.connect(self.DFrameSendInfo)
             nb.setText("Информация")
-            nb.move(10, 190)
+            nb.move(5, 190)
+            k = df[df.pic == item]['buff']
+            k.index = [1]
+            #print(k)
+            if k[1] == 1:
+                self.nf.setStyleSheet(".QLabel { max-height: 170; max-width: 170; min-width: 170; min-height: 170; border: 1px solid white; }"
+                + "QPushButton#CloseButton" + str(self.n) + " {background-color: red; max-width: 30px;}"
+                + ".QFrame#NF"+str(self.n)+" {background-color: green}")
 
             nl = QtWidgets.QLabel(self.nf)
             nl.move(4, 5)
@@ -226,7 +232,7 @@ class ExapleApp (QtWidgets.QMainWindow, design.Ui_MainWindow):
             if ok:
                 plosh, ok = QtWidgets.QInputDialog().getText(self, 'InputText', 'Площадь квартиры:?')
                 if ok:
-                    kom, ok = QtWidgets.QInputDialog().getText(self, 'InputText', 'Кол-во квартир:?')
+                    kom, ok = QtWidgets.QInputDialog().getText(self, 'InputText', 'Кол-во комнат:?')
                     if ok:
                         type, ok = QtWidgets.QInputDialog().getText(self, 'InputText', 'Тип сделки:?')
                         if ok:
@@ -245,6 +251,8 @@ class ExapleApp (QtWidgets.QMainWindow, design.Ui_MainWindow):
 def main():
     app = QtWidgets.QApplication(sys.argv)
     w = ExapleApp()
+    w.setWindowTitle("АСУРА - Автоматизированная сист...")
+    w.setWindowIcon(QIcon.fromTheme('emblem-system'))
     w.show()
     app.exec_()
 
