@@ -12,4 +12,3 @@ from abc import ABC, abstractmethod, abstractproperty
 class Example (ABC, QtWidgets.QMainWindow):
     def __init__(self):
         super().__init__()
-
