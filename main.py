@@ -7,50 +7,25 @@ from PyQt5.QtWidgets import QAction, qApp, QStyle
 import design
 from InfoMessage import Ui_InfoMessage
 
-class ExapleApp (QtWidgets.QMainWindow, design.Ui_MainWindow):
+from AStruct import Example
 
-    DBase = 'DataBase/'
-    DFile = 'House.csv'
-    tileList = []
+class ExapleApp (QtWidgets.QMainWindow, design.Ui_MainWindow, Example):
 
     def __init__(self):
-        super().__init__()
-        self.setupUi(self)
+        #Properties:
+        self.DBase = 'DataBase/'
+        self.DFile = 'House.csv'
+        self.tileList = []
 
-        self.Build()
-
-    def Build(self):
         self.NewPositionH = 1
         self.NewPositionV = 0
-        self.pushButton.clicked.connect(self.AddNew)
-        self.label.setPixmap(QtGui.QPixmap('NewAdd.png'))
-        self.label.setScaledContents(True)
+
+        super().__init__() #Используем конструкторы наследуемых классов
+        self.setupUi(self) #Устанавливаем UI
+
+        self.build()
         self.ReadDF(self.DFile)
         self.CreateMenuFunc()
-
-    def CreateMenuFunc(self):
-        exitAction = QAction(QIcon('exit.png'), '&Exit', self)
-        exitAction.setShortcut('Ctrl+Q')
-        exitAction.triggered.connect(qApp.quit)
-
-        DBrebuild = QAction(QIcon(), '&Choose DB', self)
-        DBrebuild.triggered.connect(self.DataBaseChooseFile)
-
-        searchAction = QAction(QIcon(), '&Search', self)
-        searchAction.setShortcut('Shift+F')
-        searchAction.triggered.connect(self.LineSearch)
-
-        rebootAction = QAction(QIcon(), '&Reboot', self)
-        rebootAction.setShortcut('Shift+R')
-        rebootAction.triggered.connect(self.reboot)
-
-        menubar = self.menuBar()
-        fileMenu = menubar.addMenu('&File')
-        Line = menubar.addMenu('&Line')
-        Line.addAction(searchAction)
-        Line.addAction(rebootAction)
-        fileMenu.addAction(exitAction)
-        fileMenu.addAction(DBrebuild)
 
     def DataBaseChooseFile(self):
         text, ok = QtWidgets.QInputDialog.getText(self, "Input dialog", "Data Base Name")
