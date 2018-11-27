@@ -13,9 +13,9 @@ class ExapleApp (QtWidgets.QMainWindow, design.Ui_MainWindow, Example):
 
     def __init__(self):
         #Properties:
-        self.DBase = 'DataBase/'
-        self.DFile = 'House.csv'
-        self.tileList = []
+        self.DBase()
+        self.DFile()
+        self.tileList()
 
         self.NewPositionH = 1
         self.NewPositionV = 0
@@ -25,7 +25,7 @@ class ExapleApp (QtWidgets.QMainWindow, design.Ui_MainWindow, Example):
 
         self.build()
         self.ReadDF(self.DFile)
-        self.CreateMenuFunc()
+        self.createMenuFunc()
 
     def DataBaseChooseFile(self):
         text, ok = QtWidgets.QInputDialog.getText(self, "Input dialog", "Data Base Name")
